@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, Button, Image, ScrollView, Pressable } from 'react-native'
 import React, { useState } from 'react'
-import { CameraView, useCameraPermissions, takePictureAsync } from "expo-camera";
+import { CameraView, useCameraPermissions, useMicrophonePermissions, takePictureAsync } from "expo-camera";
 import Slider from "@react-native-community/slider";
 import { useRef } from 'react'
 
-const CameraScreen = () => {
-    const [permission, requestPermission] = useCameraPermissions();
+const VideoScreen = () => {
+    const [camPermission, requestCamPermission] = useCameraPermissions();
+    const [micPermission, requestMicPermission] = useMicrophonePermissions();
     const [facing, setFacing] = useState("back");
     const [zoom, setZoom] = useState(0);
     const cameraRef = useRef(null);
@@ -13,24 +14,29 @@ const CameraScreen = () => {
     const [photo, setPhoto] = useState(null);
     const [flash, setFlash] = useState("off");
 
-    const clickPhoto = async () => {
-        const result = await cameraRef?.current?.takePictureAsync();
-        if(result) setPhoto(result.uri);
-        // console.log(result);
+    const handleStartRecording = async () => {
+        const result = await cameraRef?.current?.recordAsync();
+        console.log(cameraRef.current)
+    }
+
+    const handleStopRecording = async () => {
+
     }
 
 
-    if (!permission?.granted) {
+    if (!camPermission?.granted || !micPermission?.granted) {
         return (
             <View style={styles.container}>
-                <Button style={styles.button} title="Grant Permission" onPress={requestPermission} />
+                <Button style={styles.button} title="Grant camrea Permission" onPress={requestCamPermission} />
+                <View style={{height: 10}} />
+                <Button style={styles.button} title="Grant mic Permission" onPress={requestMicPermission} />
             </View>
         )
     }
 
     return (
         <View style={styles.container}>
-            <Pressable onPress={clickPhoto} onLongPress={() => setFacing(facing == "back" ? "front" : "back")} style={{flex:1}}>
+            <Pressable style={{flex:1}}>
                 <CameraView
                     facing={facing}
                     flash={flash === "tourch" ? undefined : flash}
@@ -57,8 +63,13 @@ const CameraScreen = () => {
             />
             <Button
                 style={styles.button}
-                title='Click Photo'
-                onPress={clickPhoto}
+                title='Start video'
+                onPress={handleStartRecording}
+            />
+            <Button
+                style={styles.button}
+                title='stop video'
+                onPress={handleStopRecording}
             />
 
             <Button
@@ -74,10 +85,6 @@ const CameraScreen = () => {
                 onValueChange={setZoom}
                 style={styles.slider}
             />
-
-            {
-                photo && <Image source={{uri: photo}} style={styles.img} />
-            }
         </View>
     )
 }
@@ -86,6 +93,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+    paddingTop: 30
   },
 
   camera: {
@@ -150,4 +158,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CameraScreen
+export default VideoScreen
