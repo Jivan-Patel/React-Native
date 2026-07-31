@@ -1,9 +1,10 @@
-import { View, Text, StyleSheet, Button, Image, ScrollView, Pressable } from 'react-native'
+import { View, Text, StyleSheet, Button, Image, ScrollView, Pressable, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { CameraView, useCameraPermissions, useMicrophonePermissions, takePictureAsync } from "expo-camera";
 import Slider from "@react-native-community/slider";
 import { useRef } from 'react'
 import { useVideoPlayer, VideoView } from 'expo-video'
+import * as MediaLibrary from "expo-media-library";
 
 const VideoScreen = () => {
     const [camPermission, requestCamPermission] = useCameraPermissions();
@@ -15,9 +16,12 @@ const VideoScreen = () => {
     const [video, setVideo] = useState(null);
     const [flash, setFlash] = useState("off");
 
+    const [isRecording, setIsRecording] = useState(false);
+
     const player = useVideoPlayer(video);
 
     const handleStartRecording = async () => {
+        setIsRecording(true);
         const result = await cameraRef?.current?.recordAsync();
         // console.log(result);
         setVideo(result.uri);
@@ -25,7 +29,24 @@ const VideoScreen = () => {
 
     const handleStopRecording = async () => {
         await cameraRef?.current?.stopRecording();
+        setIsRecording(false);
     }
+
+    const [galleryPermission, requestGalleryPermission] = MediaLibrary.usePermissions();
+
+    const saveVideo = async () => {
+        const permission = await MediaLibrary.requestPermissionsAsync();
+
+        if (!permission.granted) {
+            alert("Gallery permission is required.");
+            return;
+        }
+
+        await MediaLibrary.saveToLibraryAsync(video);
+
+        Alert.alert("Video saved successfully!");
+
+    };
 
     if (!camPermission || !micPermission) {
         return <View />
@@ -110,14 +131,16 @@ const VideoScreen = () => {
                         </Pressable>
 
                         <Pressable
-                            style={[styles.gridButton, styles.startButton]}
+                            disabled={isRecording}
+                            style={[styles.gridButton, styles.startButton, isRecording && styles.disableBtn]}
                             onPress={handleStartRecording}
                         >
                             <Text style={styles.gridButtonText}>Record</Text>
                         </Pressable>
 
                         <Pressable
-                            style={[styles.gridButton, styles.stopButton]}
+                            disabled={!isRecording}
+                            style={[styles.gridButton, styles.stopButton, !isRecording && styles.disableBtn]}
                             onPress={handleStopRecording}
                         >
                             <Text style={styles.gridButtonText}>Stop</Text>
@@ -141,6 +164,10 @@ const VideoScreen = () => {
                             allowsFullscreen
                             allowsPictureInPicture
                         />
+                        <Pressable style={styles.gridButton} onPress={saveVideo}>
+                            <Text style={styles.gridButtonText}>💾 Save Video</Text>
+                        </Pressable>
+
                     </View>
                 )}
             </ScrollView>
@@ -268,6 +295,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "700",
     },
+
+    disableBtn: {
+        opacity: 0.5
+    }
 });
 
 export default VideoScreen
