@@ -47,115 +47,125 @@ const VideoScreen = () => {
     }
 
     return (
-        <ScrollView contentContainerStyle={styles.container} >
-            <View style={styles.cameraCon} >
-            <Pressable style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: "#0D0D0D" }}>
+            <View style={styles.cameraCon}>
                 <CameraView
+                    ref={cameraRef}
                     facing={facing}
-                    flash={flash === "tourch" ? undefined : flash}
-                    enableTorch={flash === "tourch"}
+                    flash={flash === "torch" ? undefined : flash}
+                    enableTorch={flash === "torch"}
                     style={styles.camera}
                     zoom={zoom}
-                    ref={cameraRef}
                     mirror={true}
-                    mode='video'
+                    mode="video"
                     mute={true}
                 />
-            </Pressable>
-            <Text style={styles.modeTxt}>
-                {flash === "on"
-                    ? "⚡ Flash On"
-                    : flash === "off"
-                        ? "⚡ Flash Off"
-                        : flash === "auto"
-                            ? "⚡ Auto"
-                            : "🔦 Torch"}
-            </Text>
-            <View style={styles.controlPanel}>
-                <View style={styles.grid}>
-                    <Pressable
-                        style={styles.gridButton}
-                        onPress={() => setFacing(facing === "back" ? "front" : "back")}
-                    >
-                        <Text style={styles.gridButtonText}>🔄 Flip</Text>
-                    </Pressable>
 
-                    <Pressable
-                        style={styles.gridButton}
-                        onPress={() =>
-                            setFlash(
-                                flash === "on"
-                                    ? "off"
+                <Text style={styles.modeTxt}>
+                    {flash === "on"
+                        ? "⚡ Flash On"
+                        : flash === "off"
+                            ? "⚡ Flash Off"
+                            : flash === "auto"
+                                ? "⚡ Auto"
+                                : "🔦 Torch"}
+                </Text>
+            </View>
+
+            <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
+                <View style={styles.controlPanel}>
+                    <View style={styles.grid}>
+                        <Pressable
+                            style={styles.gridButton}
+                            onPress={() =>
+                                setFacing(facing === "back" ? "front" : "back")
+                            }
+                        >
+                            <Text style={styles.gridButtonText}>🔄 Flip</Text>
+                        </Pressable>
+
+                        <Pressable
+                            style={styles.gridButton}
+                            onPress={() =>
+                                setFlash(
+                                    flash === "on"
+                                        ? "off"
+                                        : flash === "off"
+                                            ? "torch"
+                                            : flash === "torch"
+                                                ? "auto"
+                                                : "on"
+                                )
+                            }
+                        >
+                            <Text style={styles.gridButtonText}>
+                                {flash === "on"
+                                    ? "⚡ Off"
                                     : flash === "off"
-                                        ? "tourch"
-                                        : flash === "tourch"
-                                            ? "auto"
-                                            : "on"
-                            )
-                        }
-                    >
-                        <Text style={styles.gridButtonText}>
-                            {flash === "on"
-                                ? "⚡ Off"
-                                : flash === "off"
-                                    ? "🔦 Torch"
-                                    : flash === "tourch"
-                                        ? "🤖 Auto"
-                                        : "⚡ On"}
-                        </Text>
-                    </Pressable>
+                                        ? "🔦 Torch"
+                                        : flash === "torch"
+                                            ? "🤖 Auto"
+                                            : "⚡ On"}
+                            </Text>
+                        </Pressable>
 
-                    <Pressable
-                        style={[styles.gridButton, styles.startButton]}
-                        onPress={handleStartRecording}
-                    >
-                        <Text style={styles.gridButtonText}>Record</Text>
-                    </Pressable>
+                        <Pressable
+                            style={[styles.gridButton, styles.startButton]}
+                            onPress={handleStartRecording}
+                        >
+                            <Text style={styles.gridButtonText}>Record</Text>
+                        </Pressable>
 
-                    <Pressable
-                        style={[styles.gridButton, styles.stopButton]}
-                        onPress={handleStopRecording}
-                    >
-                        <Text style={styles.gridButtonText}>Stop</Text>
-                    </Pressable>
+                        <Pressable
+                            style={[styles.gridButton, styles.stopButton]}
+                            onPress={handleStopRecording}
+                        >
+                            <Text style={styles.gridButtonText}>Stop</Text>
+                        </Pressable>
+                    </View>
+
+                    <Slider
+                        minimumValue={0}
+                        maximumValue={1}
+                        value={zoom}
+                        onValueChange={setZoom}
+                        style={styles.slider}
+                    />
                 </View>
 
-                <Slider
-                    minimumValue={0}
-                    maximumValue={1}
-                    value={zoom}
-                    onValueChange={setZoom}
-                    style={styles.slider}
-                />
-            </View>
-            </View>
-
-            {
-                video && (
+                {video && (
                     <View style={styles.videoContainer}>
                         <VideoView
                             player={player}
                             style={styles.video}
+                            allowsFullscreen
+                            allowsPictureInPicture
                         />
                     </View>
-                )
-            }
-        </ScrollView>
-    )
+                )}
+            </ScrollView>
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
     container: {
+        flexGrow: 1,
         backgroundColor: "#0D0D0D",
         paddingBottom: 24,
+    },
+
+    cameraCon: {
+        width: "100%",
+        alignItems: "center",
     },
 
     camera: {
         width: "100%",
         height: 420,
+        backgroundColor: "#000",
         borderBottomLeftRadius: 28,
         borderBottomRightRadius: 28,
-        overflow: "hidden",
     },
 
     modeTxt: {
@@ -169,12 +179,13 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         fontSize: 14,
         fontWeight: "700",
-        overflow: "hidden",
+        zIndex: 10,
     },
 
     controlPanel: {
-        marginTop: 18,
+        width: "100%",
         paddingHorizontal: 18,
+        marginTop: 18,
     },
 
     grid: {
@@ -193,14 +204,6 @@ const styles = StyleSheet.create({
         borderColor: "#2C2C34",
         justifyContent: "center",
         alignItems: "center",
-
-        shadowColor: "#000",
-        shadowOpacity: 0.25,
-        shadowRadius: 6,
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
         elevation: 5,
     },
 
@@ -221,27 +224,20 @@ const styles = StyleSheet.create({
     },
 
     slider: {
-        marginTop: 22,
-        marginBottom: 18,
+        width: "100%",
+        marginTop: 20,
+        marginBottom: 10,
     },
 
     videoContainer: {
-        marginHorizontal: 18,
-        marginTop: 10,
-        borderRadius: 24,
+        width: "90%",
+        alignSelf: "center",
+        marginTop: 20,
+        borderRadius: 20,
         overflow: "hidden",
         backgroundColor: "#171717",
         borderWidth: 1,
         borderColor: "#2A2A2A",
-
-        shadowColor: "#000",
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
-        shadowOffset: {
-            width: 0,
-            height: 8,
-        },
-        elevation: 8,
     },
 
     video: {
@@ -254,29 +250,24 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        padding: 24,
         backgroundColor: "#0D0D0D",
+        padding: 24,
     },
 
-    permissionButton: {
-        width: "100%",
+    button: {
+        width: "80%",
         height: 56,
         backgroundColor: "#2563EB",
-        borderRadius: 18,
+        borderRadius: 16,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 12,
     },
 
-    permissionButtonText: {
+    buttonText: {
         color: "#FFF",
         fontSize: 16,
         fontWeight: "700",
     },
-
-    cameraCon: {
-        minHeight: '100vh'
-    }
 });
 
 export default VideoScreen
