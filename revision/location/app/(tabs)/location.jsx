@@ -1,17 +1,17 @@
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native'
-import React, { useState } from 'react'
-import * as Location from 'expo-location'
+import * as Location from 'expo-location';
+import { useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function LocationScreen() {
     const [location, setLocation] = useState(null);
-    const [isLoading, setisLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleGetLocation = async () => {
-        setisLoading(true);
+        setIsLoading(true);
         const result = await Location.requestForegroundPermissionsAsync();
         if (!result.granted) {
-            setisLoading(false);
-            Alert.alert("Sucessful", "Permission Denied");
+            setIsLoading(false);
+            Alert.alert("successful", "Permission Denied");
             return;
         }
         // console.log(result);
@@ -21,7 +21,7 @@ export default function LocationScreen() {
         });
         setLocation(location.coords);
         // console.log(location);
-        setisLoading(false);
+        setIsLoading(false);
     }
 
     if (isLoading) {
@@ -48,9 +48,9 @@ export default function LocationScreen() {
             {
                 location && (
                     <View style={styles.card}>
-                        <Text style={styles.cardtext} >Latitude: {location.latitude}</Text>
-                        <Text style={styles.cardtext} >Longitude: {location.longitude}</Text>
-                        <Text style={styles.cardtext} >Accuracy: {location.accuracy}</Text>
+                        <Text style={styles.cardText} >Latitude: {location.latitude}</Text>
+                        <Text style={styles.cardText} >Longitude: {location.longitude}</Text>
+                        <Text style={styles.cardText} >Accuracy: {location.accuracy}</Text>
                         <Pressable
                             style={({ pressed }) => [
                                 styles.clearButton,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
     },
 
-    cardtext: {
+    cardText: {
         fontSize: 17,
         color: "#1F2937",
         fontWeight: "600",
