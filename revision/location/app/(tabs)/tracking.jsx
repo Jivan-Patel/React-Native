@@ -1,6 +1,7 @@
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useState, useRef } from 'react'
 import * as Location from 'expo-location';
+import MapView, { Marker } from 'react-native-maps';
 
 const TrackingScreen = () => {
     const [location, setLocation] = useState(null);
@@ -26,9 +27,7 @@ const TrackingScreen = () => {
     }
 
     const handleStopTracking = () => {
-        if(subRef?.current) {
-            subRef.current.remove();
-        }
+        subRef?.current.remove();
         setLocation(null);
     }
 
@@ -54,6 +53,23 @@ const TrackingScreen = () => {
                 <Text style={styles.cardText} >Latitude: {location.latitude}</Text>
                 <Text style={styles.cardText} >Longitude: {location.longitude}</Text>
                 <Text style={styles.cardText} >Accuracy: {location.accuracy}</Text>
+
+                <MapView
+                    style={styles.map}
+                    initialRegion={{
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.01,
+                    }}
+                >
+                    <Marker
+                        coordinate={{
+                            latitude: location.latitude,
+                            longitude: location.longitude
+                        }}
+                    />
+                </MapView>
 
                 <Pressable
                     style={({ pressed }) => [
@@ -156,4 +172,11 @@ const styles = StyleSheet.create({
         color: "#4F46E5",
         textAlign: "center",
     },
+
+    map: {
+        width: "100%",
+        height: 300,
+        borderRadius: 12,
+        marginVertical: 10,
+    }
 });
