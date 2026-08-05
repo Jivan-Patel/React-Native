@@ -15,6 +15,9 @@ const TrackingScreen = () => {
             return;
         }
 
+        const lastLocation = await Location.getLastKnownPositionAsync();
+        if (lastLocation) setLocation(lastLocation.coords);
+
         subRef.current = await Location.watchPositionAsync(
             {
                 timeInterval: 5000,
